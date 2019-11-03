@@ -15,5 +15,10 @@
   "bugs": {
     "url": "https://github.com/kunsal/teamwork/issues"
   },
-  "homepage": "https://github.com/kunsal/teamwork#readme"
+  "homepage": "https://github.com/kunsal/teamwork#readme",
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "chai-http": "^4.3.0",
+    "mocha": "^6.2.2"
+  }
 }
