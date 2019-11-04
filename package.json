@@ -2,9 +2,9 @@
   "name": "teamwork",
   "version": "1.0.0",
   "description": "Teamwork is an internal social network for employees of an organization",
-  "main": "src/app.js",
+  "main": "index.js",
   "scripts": {
-    "test": "nyc ./node_modules/mocha/bin/mocha",
+    "test": "nyc ./node_modules/mocha/bin/mocha || true",
     "lint": "eslint . --fix",
     "coverage": "nyc --reporter=lcov --reporter=text-lcov npm run test"
   },

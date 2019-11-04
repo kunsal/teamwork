@@ -1,12 +1,14 @@
 const chai = require('chai');
 const chaiHttp = require('chai-http');
-const server = require('../src/app');
+const app = require('../src/app');
+const winston = require('winston');
+winston.exceptions.unhandle();
 
 chai.use(chaiHttp);
-const {expect} = chai;
+const { expect } = chai;
 
 module.exports = {
   chai,
-  server,
-  expect
-}
+  app,
+  expect,
+};
