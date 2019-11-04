@@ -12,3 +12,9 @@ src/seeders
 
 # Models
 src/models
+
+# Coverage folder by instanbul
+coverage
+
+# nyc test output folder
+.nyc_output 

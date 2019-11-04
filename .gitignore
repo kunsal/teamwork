@@ -1,4 +1,19 @@
+# App dependencies directory
 node_modules/
+
+# Environment variable
 .env
+
+# DS_Store
 .DS_Store
+
+# npm logs
 npm-debug.log
+
+# Coverage directory 
+coverage
+*.lcov
+.nyc_output
+
+# nyc test coverage
+.nyc_output
