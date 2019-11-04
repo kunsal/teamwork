@@ -4,7 +4,8 @@
   "description": "Teamwork is an internal social network for employees of an organization",
   "main": "index.js",
   "scripts": {
-    "test": "./node_modules/mocha/bin/mocha"
+    "test": "./node_modules/mocha/bin/mocha",
+    "lint": "eslint . --fix"
   },
   "repository": {
     "type": "git",

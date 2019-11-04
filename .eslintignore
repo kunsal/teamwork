@@ -1,0 +1,14 @@
+# npm package lock file
+package-lock.json
+
+# Dependency directory
+node_modules
+
+# Migrations folder
+src/migrations
+
+# Seeders
+src/seeders
+
+# Models
+src/models
