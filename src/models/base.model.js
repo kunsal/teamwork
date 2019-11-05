@@ -23,6 +23,28 @@ class BaseModel {
     let values = [ value ];
     return query(text, values);
   }
+
+  /**
+   * 
+   * @param {object} data 
+   */
+  async create(data) {
+    const fields = Object.keys(data).toString();
+    const values = Object.values(data);
+    const parameters = this.parameterize(values);
+    const text = `INSERT INTO ${this.table} (${fields}) VALUES (${parameters})`;
+    return query(text, values); 
+  }
+
+  parameterize(data) {
+    let count = 1;
+    let parameters = [];
+    data.map(d => {
+      parameters.push(`$${count}`)
+      count ++;
+    });
+    return parameters.toString();
+  }
 }
 
 module.exports = BaseModel;

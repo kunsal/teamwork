@@ -1,7 +1,7 @@
 // Dependencies import
 const express = require('express');
-const routes = require('./routes/index');
 const bodyParser = require('body-parser');
+const routes = require('./routes/index');
 require('./helpers/logger');
 require('dotenv').config();
 
