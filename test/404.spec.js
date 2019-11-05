@@ -12,7 +12,7 @@ describe('Unknown URI', () => {
 
   describe('POST method', () => {
     it('should return with 404 status', (done) => {
-      chai.request(app).get('/eieoi').end((err, res) => {
+      chai.request(app).post('/eieoi').end((err, res) => {
         expect(res.status).to.equal(404);
         done();
       });
