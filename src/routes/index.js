@@ -2,14 +2,11 @@ const express = require('express');
 const dotenv = require('dotenv');
 const homePage = require('../controllers/home-page');
 const apiRoutes = require('./apis/index.route');
-
-const router = express.Router();
 dotenv.config();
 
-const apiVersion = process.env.API_VERSION;
-const apiBaseUrl = `/api/${apiVersion}`;
+const router = express.Router();
 
-router.use('/', homePage);
-router.use(apiBaseUrl, apiRoutes);
+router.get('/', homePage); 
+router.use('/api/v1', apiRoutes);
 
 module.exports = router;

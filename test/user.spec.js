@@ -10,9 +10,9 @@ describe('User', () => {
         .post('/api/v1/auth/create-user')
         .send(user)
         .end((err, res) => {
-          console.log(res.body);
           expect(res.status).to.equal(200);
           expect(res.body).to.have.a.property('status');
+          expect(res.body).to.have.ownProperty('data');
           done();
         });
     });
