@@ -11,4 +11,16 @@ const pool = new Pool({
   ssl: isProduction,
 });
 
-module.exports = pool;
+const ddlQuery = async (text) => {
+  try {
+    const res = await pool.query(text);
+    return `${res.command} query ran successfully`;
+  } catch (e) {
+    throw new Error(e);
+  }
+}
+
+module.exports = {
+  pool,
+  ddlQuery
+}
