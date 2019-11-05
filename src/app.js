@@ -9,7 +9,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.post('/api/v1/auth/create-user', (req, res) => {
-  res.status(201).send({status: 'true'});
+  res.status(201).send({ status: 'true' });
 });
 
 module.exports = app;

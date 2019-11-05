@@ -1,6 +1,4 @@
 const { chai, expect, app } = require('./base.spec');
-const winston = require('winston');
-winston.exceptions.unhandle();
 
 describe('User', () => {
   describe('POST create user', () => {
@@ -13,7 +11,7 @@ describe('User', () => {
           expect(res.status).to.equal(201);
           expect(res.body).to.have.property('status');
           done();
-      });
+        });
     });
   });
 });

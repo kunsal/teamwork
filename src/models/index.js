@@ -21,7 +21,19 @@ const ddlQuery = async (text) => {
   }
 }
 
+const query = (queryText, params) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const res = await pool.query(queryText, params);
+      resolve(res);
+    } catch (e) {
+      reject(e);
+    }
+  });
+}
+
 module.exports = {
   pool,
-  ddlQuery
+  ddlQuery,
+  query
 }
