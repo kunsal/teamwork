@@ -8,8 +8,8 @@ module.exports.create = async (req, res) => {
     const data = { 
       first_name, 
       last_name, 
-      email, 
-      password, 
+      email,
+      password,
       gender,
       employee_id,
       job_role,
@@ -27,10 +27,14 @@ module.exports.create = async (req, res) => {
     if (await user.exists('employee_id', data.employee_id)) {
       return res.status(400).send(response.error('Employee ID already registered'));
     }
+    // Get hashed password
+    const hashed = await user.hash(data.password);
+    data.password = hashed;
     // All is fine, then create user
     await user.create(data);
     res.status(201).send(response.success('User created successful'));
   } catch (e) {
+    console.log(e.message);
     res.status(500).send(response.error('An error occurred. Please try again'));
   }
 }
