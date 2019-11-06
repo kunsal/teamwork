@@ -11,7 +11,7 @@ module.exports.login = async (req, res) => {
     if (user.rowCount < 1) return res.status(400).send(response.error('Invalid email/password'));
     const currentUser = user.rows[0];
     const {
-      id, password, is_admin, first_name, last_name,
+      id, password, isAdmin, firstName, lastName,
     } = currentUser;
     const validPassword = await userModel.verify(req.body.password, password);
     if (!validPassword) return res.status(400).send(response.error('Invalid email/password'));
@@ -19,9 +19,9 @@ module.exports.login = async (req, res) => {
     const data = {
       token,
       userId: id,
-      isAdmin: is_admin,
-      firstName: first_name,
-      lastName: last_name,
+      isAdmin,
+      firstName,
+      lastName,
     };
     return res.send(response.success(data));
   } catch (e) {
