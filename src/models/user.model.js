@@ -2,12 +2,19 @@ const BaseModel = require('./base.model');
 const bcrypt = require('bcrypt');
 const Joi = require('joi');
 const logger = require('../helpers/logger');
+const jwt = require('jsonwebtoken');
 
 class User extends BaseModel{
   constructor() {
     super('users');
   }
 
+  /**
+   * Check if value of a field already exists 
+   * @param {string} field 
+   * @param {string} value 
+   * @returns {boolean}
+   */
   async exists(field, value) {
     const user = await this.findBy(field, value, true);
     // User
@@ -34,6 +41,22 @@ class User extends BaseModel{
   }
 
   /**
+   * Compare passwords
+   * @param {string} password 
+   * @param {string} hashedPassword
+   * @returns {boolean} 
+   */
+  async verify(password, hashedPassword) {
+    console.log(hashedPassword);
+    return await bcrypt.compare(password, hashedPassword);
+  }
+
+  generateAuthToken(user) {
+    const token = jwt.sign({ id: user.id}, process.env.JWT_PRIVATE_KEY);
+    return token;
+  }
+
+  /**
    * Validate request data
    * @param {object} user 
    */
@@ -48,6 +71,13 @@ class User extends BaseModel{
       job_role: Joi.string().required().min(2).max(30),
       department: Joi.string().required().min(2).max(50),
       is_admin: Joi.boolean(),
+    });
+  }
+
+  validateLogin(user) {
+    return Joi.validate(user, {
+      email: Joi.string().required().email(),
+      password: Joi.string().required()
     });
   }
 }
