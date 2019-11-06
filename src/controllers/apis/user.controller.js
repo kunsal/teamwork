@@ -5,16 +5,16 @@ const user = new User();
 
 module.exports.create = async (req, res) => {
   try {
-    const data = { 
-      first_name, 
-      last_name, 
+    const data = {
+      first_name,
+      last_name,
       email,
       password,
       gender,
       employee_id,
       job_role,
       department,
-      is_admin 
+      is_admin,
     } = req.body;
     // Run validation
     const { error } = user.validate(data);
@@ -31,12 +31,15 @@ module.exports.create = async (req, res) => {
     const hashed = await user.hash(data.password);
     data.password = hashed;
     // All is fine, then create user
-    await user.create(data);
+    const newUser = await user.create(data);
+    // Prepare users jwt token
+    if (newUser.rowCount == 1) {
+      
+    }
+    // const token = user.generateAuthToken(newUser)
     res.status(201).send(response.success('User created successful'));
   } catch (e) {
-    console.log(e.message);
     res.status(500).send(response.error('An error occurred. Please try again'));
+    throw new Error(e);
   }
-}
-
-
+};

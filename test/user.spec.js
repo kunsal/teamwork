@@ -16,7 +16,7 @@ describe('User', () => {
           done();
         });
     });
-    
+
     it('should create user', (done) => {
       const user = {
         password: 'admin',
@@ -34,7 +34,7 @@ describe('User', () => {
         .post(endpoint)
         .send(user)
         .end((err, res) => {
-          if(res.body.status === 'error') {
+          if (res.body.status === 'error') {
             expect(res.status).to.not.equal(201);
             expect(res.body).to.have.property('status');
             expect(res.body).to.have.property('error');
