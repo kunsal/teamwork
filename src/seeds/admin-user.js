@@ -6,14 +6,14 @@ exports.create = async () => {
     const password = await user.hash('admins');
     const data = {
       password,
-      first_name: 'Kaytiity',
-      last_name: 'Ajayi',
+      firstName: 'Kaytiity',
+      lastName: 'Ajayi',
       email: 'ajayi@yahoo.com',
       gender: 'male',
-      employee_id: 'A002',
-      job_role: 'Accountant',
+      employeeId: 'A002',
+      jobRole: 'Accountant',
       department: 'Accounts',
-      is_admin: false,
+      isAdmin: false,
     };
     const { error } = user.validate(data);
     if (error) throw new Error(error.details[0].message);
