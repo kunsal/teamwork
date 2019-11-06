@@ -4,6 +4,7 @@ node_js:
 env:
   - API_VERSION=v1;
 script: 
+  - npm run lint
   - npm run test
 after_success:
   - npm run coveralls

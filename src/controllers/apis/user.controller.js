@@ -9,15 +9,18 @@ module.exports.create = async (req, res) => {
     // Run validation
     const { error } = user.validate(data);
     if (error) {
-      return res.status(400).send(response.error(error.details[0].message));
+      res.status(400).send(response.error(error.details[0].message));
+      return;
     }
     // Check if email already exists
     if (await user.exists('email', data.email)) {
-      return res.status(400).send(response.error('Email already registered'));
+      res.status(400).send(response.error('Email already registered'));
+      return;
     }
     // Check if employee id already exists
     if (await user.exists('employeeId', data.employeeId)) {
-      return res.status(400).send(response.error('Employee ID already registered'));
+      res.status(400).send(response.error('Employee ID already registered'));
+      return;
     }
     // Get hashed password
     const hashed = await user.hash(data.password);

@@ -10,7 +10,7 @@ exports.create = async () => {
       lastName: 'Salami',
       email: 'kunsal@kaytivity.com',
       gender: 'male',
-      employeeId: 'A002',
+      employeeId: 'A001',
       jobRole: 'User Admin',
       department: 'Administration',
       isAdmin: true,
