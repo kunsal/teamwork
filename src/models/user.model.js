@@ -45,8 +45,6 @@ class User extends BaseModel{
    * @returns {boolean} 
    */
   async verify(password, hashedPassword) {
-    console.log(password, hashedPassword);
-    console.log(hashedPassword);
     return await bcrypt.compare(password, hashedPassword);
   }
 
