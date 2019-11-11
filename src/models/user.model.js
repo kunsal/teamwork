@@ -49,7 +49,14 @@ class User extends BaseModel{
   }
 
   generateAuthToken(user) {
-    const token = jwt.sign({ userId: user.id, isAdmin: user.isadmin, email: user.email }, process.env.JWT_PRIVATE_KEY);
+    const token = jwt.sign(
+      { 
+        userId: user.id, isAdmin: user.isadmin, email: user.email 
+      }, 
+      process.env.JWT_PRIVATE_KEY, 
+      {
+        expiresIn: '10m'
+      });
     return token;
   }
 
