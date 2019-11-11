@@ -5,6 +5,6 @@ const gifRoutes = require('./gif/gif.route');
 const router = express.Router();
 
 router.use('/auth', authRoutes);
-router.use('/gif', gifRoutes);
+router.use('/gifs', gifRoutes);
 
 module.exports = router;

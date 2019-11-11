@@ -9,9 +9,9 @@ describe('Gif', () => {
       done();
     });
 
-    it('should be accessible at /gif', () => {
+    it('should be accessible at /gifs', () => {
       chai.request(app)
-        .post(`${url}/gif`)
+        .post(`${url}/gifs`)
         .send({})
         .end((err, res) => {
           expect(res.status).to.not.equal(404);

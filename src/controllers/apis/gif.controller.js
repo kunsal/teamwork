@@ -45,9 +45,40 @@ const create = async (req, res) => {
     console.log(e);
     return res.status(500).send(e);
   }
+}
+
+const single = async(req, res) => {
+  try {
+    const gif = await Gif.findBy('id', req.params.id);
+    if (gif.rowCount < 1) return res.status(404).send(response.error('No GIF found'))
+    res.send(response.success(gif.rows[0]));
+  } catch (e) {
+    return res.status(500).send('Whoops! An error occurred, please try again');
+  }
   
 }
 
+const deleteGif = async(req, res) => {
+  try {
+    const gif = await Gif.findBy('id', req.params.id);
+    if (gif.rowCount < 1) return res.status(404).send(response.error('No GIF found'));
+    // Only OP or admin can delete this gif
+    if (req.userId === gif.author || req.isAdmin) {
+      const deleted = await Gif.delete('id', req.params.id);
+      if (!deleted) return res.status(400).send(response.error('Gif could not be deleted'));
+      gif.message = 'GIF post successfully deleted';
+      res.send(response.success(gif.rows[0]));
+    } else {
+      res.status(401).send(response.error('Unauthorized operation'));
+    }
+  } catch (e) {
+    console.error(e);
+    return res.status(500).send('Whoops! An error occurred, please try again');
+  }
+}
+
 module.exports = {
-  create
+  create,
+  single,
+  deleteGif
 }

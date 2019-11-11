@@ -25,7 +25,7 @@ class BaseModel {
   }
 
   /**
-   * 
+   * Create a new model record
    * @param {object} data 
    */
   async create(data) {
@@ -36,6 +36,35 @@ class BaseModel {
     return query(text, values); 
   }
 
+  /**
+   * Delete model record
+   * @param {string} field 
+   * @param {string} value 
+   */
+  async delete(field, value) {
+    let text = `DELETE FROM ${this.table} WHERE ${field} = $1`;
+    let values = [ value ];
+    return query(text, values);
+  }
+
+  /**
+   * Update model
+   * @param {object} data 
+   * @param {string} value [filter value]
+   * @param {string} field [filter field]
+   */
+  async update(data, value, field = 'id') {
+    const fields = Object.keys(data).toString();
+    const values = Object.values(data);
+    const parameters = this.parameterize(values);
+    const text = `UPDATE ${this.table} (${fields}) VALUES (${parameters}) WHERE ${field} = ${value}`;
+    return query(text, values); 
+  }
+
+  /**
+   * Parameterize query values
+   * @param {array} data 
+   */
   parameterize(data) {
     let count = 1;
     let parameters = [];
