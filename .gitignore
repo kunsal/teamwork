@@ -20,3 +20,5 @@ coverage
 
 # Log files
 *.log
+
+images/*
