@@ -55,7 +55,7 @@ class User extends BaseModel{
       }, 
       process.env.JWT_PRIVATE_KEY, 
       {
-        expiresIn: '10m'
+        expiresIn: '1h'
       });
     return token;
   }
