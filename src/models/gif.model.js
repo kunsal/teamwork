@@ -7,7 +7,9 @@ class Gif extends BaseModel{
     super('gifs');
   }
 
-  async validateFile({ mimetype, path, size }) {
+  async validateFile(image) {
+    if (!image) return 'image is required';
+    const { mimetype, path, size } = image;
     if (mimetype !== 'image/gif') {
       await this.deleteFile(path)
       return 'Only gif files are allowed'

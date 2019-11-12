@@ -1,4 +1,4 @@
-const { chai, expect, app } = require('./base.spec');
+const { expect } = require('./base.spec');
 const authMiddleware = require('../src/middlewares/auth');
 const isAdminMiddleware = require('../src/middlewares/is-admin');
 
