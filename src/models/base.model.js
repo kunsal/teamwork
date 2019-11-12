@@ -28,11 +28,11 @@ class BaseModel {
    * Create a new model record
    * @param {object} data 
    */
-  async create(data) {
+  async create(data, getBack = 'id') {
     const fields = Object.keys(data).toString();
     const values = Object.values(data);
     const parameters = this.parameterize(values);
-    const text = `INSERT INTO ${this.table} (${fields}) VALUES (${parameters})`;
+    const text = `INSERT INTO ${this.table} (${fields}) VALUES (${parameters}) RETURNING *`;
     return query(text, values); 
   }
 
@@ -42,7 +42,7 @@ class BaseModel {
    * @param {string} value 
    */
   async delete(field, value) {
-    let text = `DELETE FROM ${this.table} WHERE ${field} = $1`;
+    let text = `DELETE FROM ${this.table} WHERE ${field} = $1 RETURNING *`;
     let values = [ value ];
     return query(text, values);
   }
@@ -57,7 +57,7 @@ class BaseModel {
     const fields = Object.keys(data).toString();
     const values = Object.values(data);
     const parameters = this.parameterize(values);
-    const text = `UPDATE ${this.table} (${fields}) VALUES (${parameters}) WHERE ${field} = ${value}`;
+    const text = `UPDATE ${this.table} (${fields}) VALUES (${parameters}) WHERE ${field} = ${value} RETURNING *`;
     return query(text, values); 
   }
 

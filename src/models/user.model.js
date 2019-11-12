@@ -40,7 +40,7 @@ class User extends BaseModel{
       }, 
       process.env.JWT_PRIVATE_KEY, 
       {
-        expiresIn: '1h'
+        expiresIn: '6h'
       });
     return token;
   }
