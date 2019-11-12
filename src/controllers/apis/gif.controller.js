@@ -6,26 +6,6 @@ const cloudinary = require('../../config/cloudinary-config');
 const Gif = new GifModel();
 const Comment = new CommentModel();
 
-const prepareGifData = (req, image) => {
-  return {
-    author: req.user.userId,
-    title: req.body.title,
-    imageUrl: image.url,
-    imagePublicId: image.public_id,
-    originalFilename: image.original_filename,
-    height: image.height,
-    width: image.width,
-    createdAt: image.created_at,
-    tags: JSON.stringify(image.tags),
-  }
-}
-
-const gifExists = async (id) => {
-  const gif = await Gif.findBy('id', id);
-  if (gif.rowCount < 1) return false;
-  return gif.rows[0];
-}
-
 const create = async (req, res) => {
   try {
     const { file } = req;
@@ -33,29 +13,42 @@ const create = async (req, res) => {
     if (fileError) return res.status(400).send(response.error(fileError));
     const { path } = file;
     const uniqueFilename = new Date().toISOString();
-    const tags = req.body.tags ? req.body.tags : '';
     cloudinary.uploader.upload(path, {
-      public_id: `teamwork/${uniqueFilename}`, tags: `${tags}`,
+      public_id: `teamwork/${uniqueFilename}`, tags: `${req.body.tags}`,
     }, async (err, image) => {
       if (err) return res.status(500).send(response.error('Image could not be uploaded'));
       await Gif.deleteFile(path);
-      const gif = await Gif.create(prepareGifData(req, image));
-      const gifData = gif.rows[0];
-      gifData.message = 'GIF image successfully posted';
-      return res.status(201).send(response.success(gifData));
+      const data = {
+        author: req.user.userId,
+        title: req.body.title,
+        imageUrl: image.url,
+        imagePublicId: image.public_id,
+        originalFilename: image.original_filename,
+        height: image.height,
+        width: image.width,
+        createdAt: image.created_at,
+        tags: JSON.stringify(image.tags),
+      };
+      const gif = await Gif.create(data);
+      if (gif.rowCount === 1) {
+        const gifData = gif.rows[0];
+        gifData.message = 'GIF image successfully posted';
+        return res.status(201).send(response.success(gifData));
+      }
     });
+    return;
   } catch (e) {
-    return res.status(500).send('An error occurred. Please try again');
+    console.log(e.message);
+    return res.status(500).send(e);
   }
 };
 
 const single = async (req, res) => {
   try {
-    const gif = await gifExists(req.params.id);
-    if (!gif) return res.status(404).send(response.error('No GIF found'));
-    return res.send(response.success(gif));
+    const gif = await Gif.findBy('id', req.params.id);
+    if (gif.rowCount < 1) return res.status(404).send(response.error('No GIF found'));
+    return res.send(response.success(gif.rows[0]));
   } catch (e) {
-    console.log(e);
     return res.status(500).send('Whoops! An error occurred, please try again');
   }
 };
@@ -63,10 +56,11 @@ const single = async (req, res) => {
 const deleteGif = async (req, res) => {
   try {
     const { id } = req.params;
-    const gif = await gifExists(req.params.id);
-    if (!gif) return res.status(404).send(response.error('No GIF found'));
+    const gif = await Gif.findBy('id', id);
+    if (gif.rowCount < 1) return res.status(404).send(response.error('No GIF found'));
+    const gifData = gif.rows[0];
     // Only Original Poster or admin can delete this gif
-    if (req.user.userId === gif.author) {
+    if (req.user.userId === gifData.author) {
       const deletedGif = await Gif.delete('id', req.params.id);
       if (deletedGif.rowCount < 1) return res.status(400).send(response.error('Gif could not be deleted'));
       // Delete gif comments
@@ -84,8 +78,9 @@ const deleteGif = async (req, res) => {
 const commentOnGif = async (req, res) => {
   try {
     const gifId = req.params.id;
-    const gif = await gifExists(req.params.id);
-    if (!gif) return res.status(404).send(response.error('No GIF found'));
+    // Does gif exist?
+    const gif = await Gif.findBy('id', gifId);
+    if (gif.rowCount < 1) return res.status(404).send(response.error('GIF does not exist')); 
     const { error } = Comment.validate(req.body);
     if (error) return res.status(400).send(response.error(error.details[0].message));
     const data = {
