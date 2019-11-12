@@ -18,4 +18,32 @@ describe('Gif', () => {
         });
     });
   });
+
+  describe('GET single gif', () => {
+    it('single method should exist as a function', () => {
+      expect(gifController.single).to.be.a('function');
+    });
+    
+    it('should be accessible at /gifs/:id', () => {
+      chai.request(app)
+        .get(`${url}/gifs/1`)
+        .end((err, res) => {
+          expect(res.status).to.not.equal(404);
+        });
+    }) 
+  });
+
+  describe('DELETE gif', () => {
+    it('single method should exist as a function', () => {
+      expect(gifController.deleteGif).to.be.a('function');
+    });
+    
+    it('should be accessible at /gifs/:id', () => {
+      chai.request(app)
+        .delete(`${url}/gifs/1`)
+        .end((err, res) => {
+          expect(res.status).to.not.equal(404);
+        });
+    }) 
+  });
 });
