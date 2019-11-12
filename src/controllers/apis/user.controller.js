@@ -5,20 +5,20 @@ const user = new User();
 
 /**
  * Check the existence of fields
- * @param {array} fields 
- * @param {array} values 
+ * @param {array} fields
+ * @param {array} values
  */
 const userExists = async (fields, values) => {
   if (fields.length !== values.length) {
-    throw new Exception('Fields and values must be of the same length');
+    throw new Error('Fields and values must be of the same length');
   }
-  for (let i = 0; i < fields.length; i++) {
+  for (let i = 0; i < fields.length; i + 1) {
     if (await user.exists(fields[i], values[i])) {
-      return fields[i] + ' already registered'
+      return `${fields[i]} already registered`;
     }
-  }  
+  }
   return false;
-}
+};
 
 module.exports.create = async (req, res) => {
   try {
@@ -32,7 +32,7 @@ module.exports.create = async (req, res) => {
     // Check if user email or employeeId already exists
     const existError = await userExists(['email', 'employeeId'], [data.email, data.employeeId]);
     if (existError) return res.status(400).send(response.error(existError));
-    
+
     // Get hashed password
     const hashed = await user.hash(data.password);
     data.password = hashed;

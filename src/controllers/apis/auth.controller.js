@@ -16,14 +16,18 @@ module.exports.login = async (req, res) => {
       return;
     }
     const currentUser = user.rows[0];
-    const { id, password, isAdmin, firstName, lastName } = currentUser;
+    const {
+      id, password, isAdmin, firstName, lastName,
+    } = currentUser;
     const validPassword = await userModel.verify(req.body.password, password);
     if (!validPassword) {
       res.status(400).send(response.error('Invalid email/password'));
       return;
     }
     const token = userModel.generateAuthToken(currentUser);
-    const data = { token, isAdmin, firstName, lastName, userId: id};
+    const data = {
+      token, isAdmin, firstName, lastName, userId: id,
+    };
     res.send(response.success(data));
   } catch (e) {
     res.status(500).send(response.error('Whoops! Something went wrong. Try again'));
