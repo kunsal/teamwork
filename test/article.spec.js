@@ -1,17 +1,17 @@
 const { chai, expect, app } = require('./base.spec');
-const gifController = require('../src/controllers/apis/gif.controller');
+const articleController = require('../src/controllers/apis/article.controller');
 
-describe('Gif', () => {
+describe('article', () => {
   const url = '/api/v1';
   describe('POST /', () => {
     it('create should exist as a function', (done) => {
-      expect(gifController.create).to.be.a('function');
+      expect(articleController.create).to.be.a('function');
       done();
     });
 
-    it('should be accessible at /gifs', () => {
+    it('should be accessible at /articles', () => {
       chai.request(app)
-        .post(`${url}/gifs`)
+        .post(`${url}/articles`)
         .send({})
         .end((err, res) => {
           expect(res.status).to.not.equal(404);
@@ -19,31 +19,31 @@ describe('Gif', () => {
     });
   });
 
-  describe('GET single gif', () => {
+  /* describe('GET single article', () => {
     it('single method should exist as a function', () => {
-      expect(gifController.single).to.be.a('function');
+      expect(articleController.single).to.be.a('function');
     });
     
-    it('should be accessible at /gifs/:id', () => {
+    it('should be accessible at /articles/:id', () => {
       chai.request(app)
-        .get(`${url}/gifs/1`)
+        .get(`${url}/articles/1`)
         .end((err, res) => {
           expect(res.status).to.not.equal(404);
         });
     }) 
   });
 
-  describe('DELETE gif', () => {
+  describe('DELETE article', () => {
     it('single method should exist as a function', () => {
-      expect(gifController.deleteGif).to.be.a('function');
+      expect(articleController.deletearticle).to.be.a('function');
     });
     
-    it('should be accessible at /gifs/:id', () => {
+    it('should be accessible at /articles/:id', () => {
       chai.request(app)
-        .delete(`${url}/gifs/1`)
+        .delete(`${url}/articles/1`)
         .end((err, res) => {
           expect(res.status).to.not.equal(404);
         });
     }) 
-  });
+  }); */
 });
