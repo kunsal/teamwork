@@ -63,7 +63,6 @@ class BaseModel {
       count ++;
     });
     let text = `UPDATE ${this.table} SET ${setData} WHERE ${filterField} = ${filterValue} RETURNING *`;
-    console.log(text);
     return this.query(text, Object.values(data)); 
   }
 

@@ -1,5 +1,6 @@
 const response = require('../../helpers/response');
 const User = require('../../models/user.model');
+const { serverError } = require('../../helpers/helper');
 
 const userModel = new User();
 
@@ -30,7 +31,6 @@ module.exports.login = async (req, res) => {
     };
     res.send(response.success(data));
   } catch (e) {
-    res.status(500).send(response.error('Whoops! Something went wrong. Try again'));
-    throw new Error(e);
+    serverError(res, e);
   }
 };

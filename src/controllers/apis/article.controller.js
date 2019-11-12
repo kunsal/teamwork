@@ -1,6 +1,7 @@
 const ArticleModel = require('../../models/article.model');
 const CommentModel = require('../../models/comment.model');
 const response = require('../../helpers/response');
+const { serverError } = require('../../helpers/helper');
 
 const Article = new ArticleModel();
 const Comment = new CommentModel();
@@ -28,7 +29,7 @@ const create = async (req, res) => {
     const article = await Article.create(prepareArticleData(req));
     return res.status(201).send(response.success({ message: 'Article successfully posted', ...article.rows[0]}));
   } catch (e) {
-    return res.status(500).send(e);
+    serverError(res, e);
   }
 };
 
@@ -41,7 +42,7 @@ const single = async (req, res) => {
     const comments = await Comment.findByType('postId', articleId, 'article');
     return res.send(response.success({...article, comments: comments.rows}));
   } catch (e) {
-    return res.status(500).send('Whoops! An error occurred, please try again');
+    serverError(res, e);
   }
 };
 
@@ -60,7 +61,7 @@ const deleteArticle = async (req, res) => {
     }
     return res.status(401).send(response.error('Unauthorized'));
   } catch (e) {
-    return res.status(500).send('Whoops! An error occurred, please try again');
+    serverError(res, e);
   }
 };
 
@@ -81,7 +82,7 @@ const commentOnArticle = async (req, res) => {
     const comment = await Comment.create(data);
     return res.send(response.success({ message: 'Comment added successfully', ...comment.rows[0]}));
   } catch (e) {
-    return res.status(500).send('Whoops! An error occurred, please try again');
+    serverError(res, e);
   }
 };
 
@@ -100,7 +101,7 @@ const editArticle = async (req, res) => {
     const updatedArticle = await Article.update(data, articleId);
     res.send(response.success({ message: 'Article updated successfully', ...updatedArticle.rows[0]}));
   } catch (e) {
-    res.status(500).send('An error occurred. Please try again');
+    serverError(res, e);
   }
 }
 
@@ -117,7 +118,7 @@ const flagArticle = async (req, res) => {
     const updatedArticle = await Article.update(data, articleId);
     res.send(response.success({ message: 'Article flag updated successfully', ...updatedArticle.rows[0]}));
   } catch(e) {
-    res.status(500).send('An error occurred. Please try again');
+    serverError(res, e);
   }
 }
 

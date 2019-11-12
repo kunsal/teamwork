@@ -1,5 +1,6 @@
 const response = require('../../helpers/response');
 const User = require('../../models/user.model');
+const { serverError } = require('../../helpers/helper');
 
 const user = new User();
 
@@ -46,7 +47,6 @@ module.exports.create = async (req, res) => {
     }
     // const token = user.generateAuthToken(newUser)
   } catch (e) {
-    res.status(500).send(response.error('An error occurred. Please try again'));
-    throw new Error(e);
+    serverError(res, e);
   }
 };

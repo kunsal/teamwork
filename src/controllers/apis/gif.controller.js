@@ -2,6 +2,7 @@ const GifModel = require('../../models/gif.model');
 const CommentModel = require('../../models/comment.model');
 const response = require('../../helpers/response');
 const cloudinary = require('../../config/cloudinary-config');
+const { serverError } = require('../../helpers/helper');
 
 const Gif = new GifModel();
 const Comment = new CommentModel();
@@ -43,7 +44,7 @@ const create = async (req, res) => {
       return res.status(201).send(response.success({message: 'GIF image successfully posted', ...gif.rows[0]}));
     });
   } catch (e) {
-    return res.status(500).send('An error occurred. Please try again');
+    serverError(res, e);
   }
 };
 
@@ -56,8 +57,7 @@ const single = async (req, res) => {
     const comments = await Comment.findByType('postId', gifId, 'gif');
     return res.send(response.success({...gif, comments: comments.rows}));
   } catch (e) {
-    console.log(e);
-    return res.status(500).send('Whoops! An error occurred, please try again');
+    serverError(res, e);
   }
 };
 
@@ -76,7 +76,7 @@ const deleteGif = async (req, res) => {
     }
     return res.status(401).send(response.error('Unauthorized'));
   } catch (e) {
-    return res.status(500).send('Whoops! An error occurred, please try again');
+    serverError(res, e);
   }
 };
 
@@ -96,7 +96,7 @@ const commentOnGif = async (req, res) => {
     const commented = await Comment.create(data);
     return res.send(response.success({message: 'Comment successfully created', ...commented.rows[0]}));
   } catch (e) {
-    return res.status(500).send('Whoops! An error occurred, please try again');
+    serverError(res, e);
   }
 };
 
