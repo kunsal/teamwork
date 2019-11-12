@@ -40,9 +40,7 @@ const create = async (req, res) => {
       if (err) return res.status(500).send(response.error('Image could not be uploaded'));
       await Gif.deleteFile(path);
       const gif = await Gif.create(prepareGifData(req, image));
-      const gifData = gif.rows[0];
-      gifData.message = 'GIF image successfully posted';
-      return res.status(201).send(response.success(gifData));
+      return res.status(201).send(response.success({message: 'GIF image successfully posted', ...gif.rows[0]}));
     });
   } catch (e) {
     return res.status(500).send('An error occurred. Please try again');
@@ -51,9 +49,12 @@ const create = async (req, res) => {
 
 const single = async (req, res) => {
   try {
-    const gif = await gifExists(req.params.id);
+    const gifId = req.params.id;
+    const gif = await gifExists(gifId);
     if (!gif) return res.status(404).send(response.error('No GIF found'));
-    return res.send(response.success(gif));
+    // Get comments
+    const comments = await Comment.findByType('postId', gifId, 'gif');
+    return res.send(response.success({...gif, comments: comments.rows}));
   } catch (e) {
     console.log(e);
     return res.status(500).send('Whoops! An error occurred, please try again');
@@ -71,9 +72,7 @@ const deleteGif = async (req, res) => {
       if (deletedGif.rowCount < 1) return res.status(400).send(response.error('Gif could not be deleted'));
       // Delete gif comments
       await Comment.delete('postId', id);
-      const deletedGifData = deleteGif.rows[0];
-      deletedGifData.message = 'GIF post successfully deleted';
-      return res.send(response.success(deletedGifData));
+      return res.send(response.success({message: 'GIF post successfully deleted', ...deletedGif.rows[0]}));
     }
     return res.status(401).send(response.error('Unauthorized'));
   } catch (e) {
@@ -95,15 +94,33 @@ const commentOnGif = async (req, res) => {
       postId: gifId,
     };
     const commented = await Comment.create(data);
-    return res.send(response.success(commented.rows[0]));
+    return res.send(response.success({message: 'Comment successfully created', ...commented.rows[0]}));
   } catch (e) {
     return res.status(500).send('Whoops! An error occurred, please try again');
   }
 };
+
+const flagGif = async (req, res) => {
+  try {
+    const gifId = req.params.id;
+    const gif = await Gif.findBy('id', gifId);
+    if (gif.rowCount === 0) return res.status(404).send(response.error('Article does not exist'));
+    const { error } = Gif.validateFlag(req.body);
+    if (error) return res.status(400).send(response.error(error.details[0].message));
+    const data = {
+      inappropriate: req.body.inappropriate
+    }
+    const updatedGif = await Gif.update(data, gifId);
+    res.send(response.success({ message: 'Article flag updated successfully', ...updatedGif.rows[0]}));
+  } catch(e) {
+    res.status(500).send('An error occurred. Please try again');
+  }
+}
 
 module.exports = {
   create,
   single,
   deleteGif,
   commentOnGif,
+  flagGif
 };

@@ -7,6 +7,7 @@ class BaseModel {
    */
   constructor(table) {
     this.table = table;
+    this.query = query;
   }
 
   /**
@@ -21,7 +22,7 @@ class BaseModel {
       text += ' LIMIT 1';
     } 
     let values = [ value ];
-    return query(text, values);
+    return this.query(text, values);
   }
 
   /**
@@ -33,7 +34,7 @@ class BaseModel {
     const values = Object.values(data);
     const parameters = this.parameterize(values);
     const text = `INSERT INTO ${this.table} (${fields}) VALUES (${parameters}) RETURNING *`;
-    return query(text, values); 
+    return this.query(text, values); 
   }
 
   /**
@@ -44,27 +45,32 @@ class BaseModel {
   async delete(field, value) {
     let text = `DELETE FROM ${this.table} WHERE ${field} = $1 RETURNING *`;
     let values = [ value ];
-    return query(text, values);
+    return this.query(text, values);
   }
 
   /**
    * Update model
    * @param {object} data 
-   * @param {string} value [filter value]
-   * @param {string} field [filter field]
+   * @param {string} filterValue [filter value]
+   * @param {string} filterField [filter field]
    */
-  async update(data, value, field = 'id') {
-    const fields = Object.keys(data).toString();
-    const values = Object.values(data);
-    const parameters = this.parameterize(values);
-    const text = `UPDATE ${this.table} (${fields}) VALUES (${parameters}) WHERE ${field} = ${value} RETURNING *`;
-    return query(text, values); 
+  async update(data, filterValue, filterField = 'id') {
+    const fields = Object.keys(data);
+    let count = 1;
+    let setData = [];
+    fields.map(field => {
+      setData.push(`${field} = $${count}`);
+      count ++;
+    });
+    let text = `UPDATE ${this.table} SET ${setData} WHERE ${filterField} = ${filterValue} RETURNING *`;
+    console.log(text);
+    return this.query(text, Object.values(data)); 
   }
 
   /**
    * Check if value of a field already exists 
    * @param {string} field 
-   * @param {string} value 
+   * @param {string} value  
    * @returns {boolean}
    */
   async exists(field, value) {
@@ -77,8 +83,9 @@ class BaseModel {
   }
 
   /**
-   * Parameterize query values
+   * Parameterize this.query values
    * @param {array} data 
+   * @returns {string} 
    */
   parameterize(data) {
     let count = 1;

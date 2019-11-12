@@ -18,6 +18,12 @@ class Article extends BaseModel{
     });
   }
 
+  validateFlag(article) {
+    return Joi.validate(article, {
+      inappropriate: Joi.boolean().required()
+    });
+  }
+
 }
 
 module.exports = Article;  

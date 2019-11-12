@@ -8,10 +8,10 @@ const Comment = new CommentModel();
 const prepareArticleData = (req) => {
   return {
     author: req.user.userId,
-      title: req.body.title,
-      article: req.body.article,
-      createdAt: new Date(),
-      tags: req.body.tags
+    title: req.body.title,
+    article: req.body.article,
+    createdAt: new Date(),
+    tags: req.body.tags
   }
 }
 
@@ -26,9 +26,7 @@ const create = async (req, res) => {
     const { error } = Article.validate(req.body);
     if (error) return res.status(400).send(response.error(error.details[0].message));
     const article = await Article.create(prepareArticleData(req));
-    const articleData = article.rows[0];
-    articleData.message = 'Article successfully posted';
-    return res.status(201).send(response.success(articleData));
+    return res.status(201).send(response.success({ message: 'Article successfully posted', ...article.rows[0]}));
   } catch (e) {
     return res.status(500).send(e);
   }
@@ -36,9 +34,12 @@ const create = async (req, res) => {
 
 const single = async (req, res) => {
   try {
-    const article = await articleExists(req.params.id);
+    const articleId = req.params.id;
+    const article = await articleExists(articleId);
     if (!article) return res.status(404).send(response.error('No article found'));
-    return res.send(response.success(article));
+    // Get comments
+    const comments = await Comment.findByType('postId', articleId, 'article');
+    return res.send(response.success({...article, comments: comments.rows}));
   } catch (e) {
     return res.status(500).send('Whoops! An error occurred, please try again');
   }
@@ -55,9 +56,7 @@ const deleteArticle = async (req, res) => {
       if (deletedArticle.rowCount < 1) return res.status(400).send(response.error('Article could not be deleted'));
       // Delete article comments
       await Comment.delete('postId', id);
-      const deletedArticleData = deleteArticle.rows[0];
-      deletedArticleData.message = 'article post successfully deleted';
-      return res.send(response.success(deletedArticleData));
+      return res.send(response.success({ message: 'Article post successfully deleted', ...deleteArticle.rows[0]}));
     }
     return res.status(401).send(response.error('Unauthorized'));
   } catch (e) {
@@ -80,17 +79,53 @@ const commentOnArticle = async (req, res) => {
       postId: articleId,
     };
     const comment = await Comment.create(data);
-    const commentData = comment.rows[0];
-    commentData.message = 'Comment added successfully';
-    return res.send(response.success(commentData));
+    return res.send(response.success({ message: 'Comment added successfully', ...comment.rows[0]}));
   } catch (e) {
     return res.status(500).send('Whoops! An error occurred, please try again');
   }
 };
+
+const editArticle = async (req, res) => {
+  try {
+    const articleId = req.params.id;
+    const article = await Article.findBy('id', articleId);
+    if (article.rowCount === 0) return res.status(404).send(response.error('Article does not exist'));
+    const { error } = Article.validate(req.body);
+    if (error) return res.status(400).send(response.error(error.details[0].message));
+    const data = {
+      title: req.body.title,
+      article: req.body.article,
+      tags: req.body.tags
+    };
+    const updatedArticle = await Article.update(data, articleId);
+    res.send(response.success({ message: 'Article updated successfully', ...updatedArticle.rows[0]}));
+  } catch (e) {
+    res.status(500).send('An error occurred. Please try again');
+  }
+}
+
+const flagArticle = async (req, res) => {
+  try {
+    const articleId = req.params.id;
+    const article = await Article.findBy('id', articleId);
+    if (article.rowCount === 0) return res.status(404).send(response.error('Article does not exist'));
+    const { error } = Article.validateFlag(req.body);
+    if (error) return res.status(400).send(response.error(error.details[0].message));
+    const data = {
+      inappropriate: req.body.inappropriate
+    }
+    const updatedArticle = await Article.update(data, articleId);
+    res.send(response.success({ message: 'Article flag updated successfully', ...updatedArticle.rows[0]}));
+  } catch(e) {
+    res.status(500).send('An error occurred. Please try again');
+  }
+}
 
 module.exports = {
   create,
   single,
   deleteArticle,
   commentOnArticle,
+  editArticle,
+  flagArticle
 };
