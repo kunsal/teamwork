@@ -9,21 +9,6 @@ class User extends BaseModel{
   }
 
   /**
-   * Check if value of a field already exists 
-   * @param {string} field 
-   * @param {string} value 
-   * @returns {boolean}
-   */
-  async exists(field, value) {
-    const user = await this.findBy(field, value, true);
-    // Check if user returns count
-    if (user.rowCount > 0) {
-      return true;
-    }
-    return false;
-  }
-
-  /**
    * Generate hash from string
    * @param {string} str 
    * @returns {string} hashed

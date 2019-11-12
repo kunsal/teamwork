@@ -1,8 +1,10 @@
 const GifModel = require('../../models/gif.model');
+const CommentModel = require('../../models/comment.model');
 const response = require('../../helpers/response');
 const cloudinary = require('../../config/cloudinary-config');
 
 const Gif = new GifModel;
+const Comment = new CommentModel;
 
 const create = async (req, res) => {
   try {
@@ -77,8 +79,22 @@ const deleteGif = async(req, res) => {
   }
 }
 
+const commentOnGif = async (req, res) => {
+  const { error } = Comment.validate(req.body);
+  if (error) return res.status(400).send(response.error(error.details[0].message));
+  const data = {
+    commenter: req.user.userId,
+    comment: req.body.comment,
+    postType: 'gif',
+    postId: req.params.id
+  }
+  const commented = await Comment.create(data);
+  res.send(commented);
+}
+
 module.exports = {
   create,
   single,
-  deleteGif
+  deleteGif,
+  commentOnGif
 }

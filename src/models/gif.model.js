@@ -1,28 +1,10 @@
 const BaseModel = require('./base.model');
-const BaseJoi = require('joi');
-const ImageExtension = require('joi-image-extension');
+const Joi = require('joi');
 const fs = require('fs');
-
-const Joi = BaseJoi.extend(ImageExtension);
 
 class Gif extends BaseModel{
   constructor() {
     super('gifs');
-  }
-
-  /**
-   * Check if value of a field already exists 
-   * @param {string} field 
-   * @param {string} value 
-   * @returns {boolean}
-   */
-  async exists(field, value) {
-    const gif = await this.findBy(field, value, true);
-    // Check if user returns count
-    if (gif.rowCount > 0) {
-      return true;
-    }
-    return false;
   }
 
   async validateFile({ mimetype, path, size }) {
