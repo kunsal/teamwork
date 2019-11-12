@@ -16,7 +16,7 @@ const prepareGifData = (req, image) => {
     height: image.height,
     width: image.width,
     createdAt: image.created_at,
-    tags: JSON.stringify(image.tags),
+    tags: image.tags.join(),
   }
 }
 
