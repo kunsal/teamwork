@@ -5,34 +5,40 @@ const response = require('../../helpers/response');
 const Article = new ArticleModel();
 const Comment = new CommentModel();
 
+const prepareArticleData = (req) => {
+  return {
+    author: req.user.userId,
+      title: req.body.title,
+      article: req.body.article,
+      createdAt: new Date(),
+      tags: req.body.tags
+  }
+}
+
+const articleExists = async (id) => {
+  const article = await Article.findBy('id', id);
+  if (article.rowCount < 1) return false;
+  return article.rows[0];
+}
+
 const create = async (req, res) => {
   try {
     const { error } = Article.validate(req.body);
     if (error) return res.status(400).send(response.error(error.details[0].message));
-    const data = {
-      author: req.user.userId,
-      title: req.body.title,
-      article: req.body.article,
-      createdAt: new Date(),
-      tags: req.body.tags,
-    };
-    const article = await Article.create(data);
-    if (article.rowCount > 0) {
-      const articleData = article.rows[0];
-      articleData.message = 'Article successfully posted';
-      return res.status(201).send(response.success(articleData));
-    }
+    const article = await Article.create(prepareArticleData(req));
+    const articleData = article.rows[0];
+    articleData.message = 'Article successfully posted';
+    return res.status(201).send(response.success(articleData));
   } catch (e) {
-    console.log(e);
     return res.status(500).send(e);
   }
 };
 
 const single = async (req, res) => {
   try {
-    const article = await Article.findBy('id', req.params.id);
-    if (article.rowCount < 1) return res.status(404).send(response.error('No article found'));
-    return res.send(response.success(article.rows[0]));
+    const article = await articleExists(req.params.id);
+    if (!article) return res.status(404).send(response.error('No article found'));
+    return res.send(response.success(article));
   } catch (e) {
     return res.status(500).send('Whoops! An error occurred, please try again');
   }
@@ -41,11 +47,10 @@ const single = async (req, res) => {
 const deleteArticle = async (req, res) => {
   try {
     const { id } = req.params;
-    const article = await article.findBy('id', id);
-    if (article.rowCount < 1) return res.status(404).send(response.error('No article found'));
-    const articleData = article.rows[0];
+    const article = await articleExists(id);
+    if (!article) return res.status(404).send(response.error('No article found'));
     // Only Original Poster or admin can delete this article
-    if (req.user.userId === articleData.author) {
+    if (req.user.userId === article.author) {
       const deletedArticle = await Article.delete('id', req.params.id);
       if (deletedArticle.rowCount < 1) return res.status(400).send(response.error('Article could not be deleted'));
       // Delete article comments
@@ -64,8 +69,8 @@ const commentOnArticle = async (req, res) => {
   try {
     const articleId = req.params.id;
     // Does Article exist?
-    const article = await Article.findBy('id', articleId);
-    if (article.rowCount < 1) return res.status(404).send(response.error('Article does not exist')); 
+    const article = await articleExists(articleId);
+    if (!article) return res.status(404).send(response.error('Article does not exist')); 
     const { error } = Comment.validate(req.body);
     if (error) return res.status(400).send(response.error(error.details[0].message));
     const data = {
