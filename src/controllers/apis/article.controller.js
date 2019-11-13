@@ -1,33 +1,32 @@
 const ArticleModel = require('../../models/article.model');
 const CommentModel = require('../../models/comment.model');
 const response = require('../../helpers/response');
-const { serverError } = require('../../helpers/helper');
+const { serverError, errorResponse } = require('../../helpers/helper');
 
 const Article = new ArticleModel();
 const Comment = new CommentModel();
+const articleNotFound = 'No article found';
 
-const prepareArticleData = (req) => {
-  return {
-    author: req.user.userId,
-    title: req.body.title,
-    article: req.body.article,
-    createdAt: new Date(),
-    tags: req.body.tags
-  }
-}
+const prepareArticleData = (req) => ({
+  author: req.user.userId,
+  title: req.body.title,
+  article: req.body.article,
+  createdAt: new Date(),
+  tags: req.body.tags,
+});
 
 const articleExists = async (id) => {
   const article = await Article.findBy('id', id);
   if (article.rowCount < 1) return false;
   return article.rows[0];
-}
+};
 
 const create = async (req, res) => {
   try {
     const { error } = Article.validate(req.body);
-    if (error) return res.status(400).send(response.error(error.details[0].message));
+    if (error) return errorResponse(res, error.details[0].message);
     const article = await Article.create(prepareArticleData(req));
-    return res.status(201).send(response.success({ message: 'Article successfully posted', ...article.rows[0]}));
+    return res.status(201).send(response.success({ message: 'Article successfully posted', ...article.rows[0] }));
   } catch (e) {
     serverError(res, e);
   }
@@ -37,10 +36,10 @@ const single = async (req, res) => {
   try {
     const articleId = req.params.id;
     const article = await articleExists(articleId);
-    if (!article) return res.status(404).send(response.error('No article found'));
+    if (!article) return errorResponse(res, articleNotFound, 404);
     // Get comments
     const comments = await Comment.findByType('postId', articleId, 'article');
-    return res.send(response.success({...article, comments: comments.rows}));
+    return res.send(response.success({ ...article, comments: comments.rows }));
   } catch (e) {
     serverError(res, e);
   }
@@ -50,16 +49,16 @@ const deleteArticle = async (req, res) => {
   try {
     const { id } = req.params;
     const article = await articleExists(id);
-    if (!article) return res.status(404).send(response.error('No article found'));
+    if (!article) return errorResponse(res, articleNotFound, 404);
     // Only Original Poster or admin can delete this article
     if (req.user.userId === article.author) {
       const deletedArticle = await Article.delete('id', req.params.id);
-      if (deletedArticle.rowCount < 1) return res.status(400).send(response.error('Article could not be deleted'));
+      if (deletedArticle.rowCount < 1) return errorResponse(res, 'Article could not be deleted');
       // Delete article comments
       await Comment.delete('postId', id);
-      return res.send(response.success({ message: 'Article post successfully deleted', ...deleteArticle.rows[0]}));
+      return res.send(response.success({ message: 'Article post successfully deleted', ...deleteArticle.rows[0] }));
     }
-    return res.status(401).send(response.error('Unauthorized'));
+    return errorResponse(res, 'Unauthorized', 401);
   } catch (e) {
     serverError(res, e);
   }
@@ -70,9 +69,9 @@ const commentOnArticle = async (req, res) => {
     const articleId = req.params.id;
     // Does Article exist?
     const article = await articleExists(articleId);
-    if (!article) return res.status(404).send(response.error('Article does not exist')); 
+    if (!article) return errorResponse(res, articleNotFound, 404);
     const { error } = Comment.validate(req.body);
-    if (error) return res.status(400).send(response.error(error.details[0].message));
+    if (error) return errorResponse(res, error.details[0].message);
     const data = {
       commenter: req.user.userId,
       comment: req.body.comment,
@@ -80,7 +79,7 @@ const commentOnArticle = async (req, res) => {
       postId: articleId,
     };
     const comment = await Comment.create(data);
-    return res.send(response.success({ message: 'Comment added successfully', ...comment.rows[0]}));
+    return res.send(response.success({ message: 'Comment added successfully', ...comment.rows[0] }));
   } catch (e) {
     serverError(res, e);
   }
@@ -90,37 +89,37 @@ const editArticle = async (req, res) => {
   try {
     const articleId = req.params.id;
     const article = await Article.findBy('id', articleId);
-    if (article.rowCount === 0) return res.status(404).send(response.error('Article does not exist'));
+    if (article.rowCount === 0) return errorResponse(res, articleNotFound, 404);
     const { error } = Article.validate(req.body);
-    if (error) return res.status(400).send(response.error(error.details[0].message));
+    if (error) return errorResponse(res, error.details[0].message);
     const data = {
       title: req.body.title,
       article: req.body.article,
-      tags: req.body.tags
+      tags: req.body.tags,
     };
     const updatedArticle = await Article.update(data, articleId);
-    res.send(response.success({ message: 'Article updated successfully', ...updatedArticle.rows[0]}));
+    res.send(response.success({ message: 'Article updated successfully', ...updatedArticle.rows[0] }));
   } catch (e) {
     serverError(res, e);
   }
-}
+};
 
 const flagArticle = async (req, res) => {
   try {
     const articleId = req.params.id;
     const article = await Article.findBy('id', articleId);
-    if (article.rowCount === 0) return res.status(404).send(response.error('Article does not exist'));
+    if (article.rowCount === 0) return errorResponse(res, articleNotFound, 404);
     const { error } = Article.validateFlag(req.body);
-    if (error) return res.status(400).send(response.error(error.details[0].message));
+    if (error) return errorResponse(res, error.details[0].message);
     const data = {
-      inappropriate: req.body.inappropriate
-    }
+      inappropriate: req.body.inappropriate,
+    };
     const updatedArticle = await Article.update(data, articleId);
-    res.send(response.success({ message: 'Article flag updated successfully', ...updatedArticle.rows[0]}));
-  } catch(e) {
+    res.send(response.success({ message: 'Article flag updated successfully', ...updatedArticle.rows[0] }));
+  } catch (e) {
     serverError(res, e);
   }
-}
+};
 
 module.exports = {
   create,
@@ -128,5 +127,5 @@ module.exports = {
   deleteArticle,
   commentOnArticle,
   editArticle,
-  flagArticle
+  flagArticle,
 };

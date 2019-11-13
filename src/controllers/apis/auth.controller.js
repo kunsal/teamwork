@@ -1,30 +1,22 @@
 const response = require('../../helpers/response');
 const User = require('../../models/user.model');
-const { serverError } = require('../../helpers/helper');
+const { serverError, errorResponse } = require('../../helpers/helper');
 
 const userModel = new User();
 
 module.exports.login = async (req, res) => {
   try {
     const { error } = userModel.validateLogin(req.body);
-    if (error) {
-      res.status(400).send(response.error(error.details[0].message));
-      return;
-    }
+    if (error) return errorResponse(res, error.details[0].message);
     const user = await userModel.findBy('email', req.body.email, true);
-    if (user.rowCount < 1) {
-      res.status(400).send(response.error('Invalid email/password'));
-      return;
-    }
+    const loginError = 'Invalid email/password';
+    if (user.rowCount < 1) return errorResponse(res, loginError);
     const currentUser = user.rows[0];
     const {
       id, password, isAdmin, firstName, lastName,
     } = currentUser;
     const validPassword = await userModel.verify(req.body.password, password);
-    if (!validPassword) {
-      res.status(400).send(response.error('Invalid email/password'));
-      return;
-    }
+    if (!validPassword) return errorResponse(res, loginError);
     const token = userModel.generateAuthToken(currentUser);
     const data = {
       token, isAdmin, firstName, lastName, userId: id,

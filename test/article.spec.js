@@ -1,19 +1,19 @@
+const sinon = require('sinon');
 const { chai, expect, app } = require('./base.spec');
 const articleController = require('../src/controllers/apis/article.controller');
 const ArticleModel = require('../src/models/article.model');
-const sinon = require('sinon');
 
-const Article = new ArticleModel;
+const Article = new ArticleModel();
 
 let jwtToken;
-//let userData = 
+// let userData =
 
 describe('article', () => {
   const url = '/api/v1';
   describe('POST /', () => {
     beforeEach(() => {
       jwtToken = 'aNewParticularlongString';
-      sinon.stub(Article, 'create').returns({rowCount: 1});
+      sinon.stub(Article, 'create').returns({ rowCount: 1 });
     });
 
     afterEach(() => {
@@ -25,7 +25,7 @@ describe('article', () => {
       done();
     });
 
-    
+
     it('should be accessible at /articles', () => {
       chai.request(app)
         .post(`${url}/articles`)
@@ -39,9 +39,9 @@ describe('article', () => {
       chai.request(app)
         .post(`${url}/articles`)
         .send({
-          title: "Test article 1",
-          article: "This is a pretty long article and the simplicity does not counter its longeivity",
-          tags: "Nigeria, home, land"
+          title: 'Test article 1',
+          article: 'This is a pretty long article and the simplicity does not counter its longeivity',
+          tags: 'Nigeria, home, land',
         })
         .end((err, res) => {
           expect(res.status).to.equal(401);
@@ -63,25 +63,25 @@ describe('article', () => {
     // });
   });
 
- /*describe('GET single article', () => {
+  /* describe('GET single article', () => {
     it('single method should exist as a function', () => {
       expect(articleController.single).to.be.a('function');
     });
-    
+
     it('should be accessible at /articles/:id', () => {
       chai.request(app)
         .get(`${url}/articles/1`)
         .end((err, res) => {
           expect(res.status).to.not.equal(404);
         });
-    }) 
+    })
   });
 
   describe('DELETE article', () => {
     it('single method should exist as a function', () => {
       expect(articleController.deletearticle).to.be.a('function');
     });
-    
+
     it('should be accessible at /articles/:id', () => {
       chai.request(app)
         .set('Authorization', `Bearer ${jwtToken}`)
@@ -89,6 +89,6 @@ describe('article', () => {
         .end((err, res) => {
           expect(res.status).to.not.equal(404);
         });
-    }) 
+    })
   }); */
 });

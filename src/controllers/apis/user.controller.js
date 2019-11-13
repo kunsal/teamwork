@@ -1,6 +1,6 @@
 const response = require('../../helpers/response');
 const User = require('../../models/user.model');
-const { serverError } = require('../../helpers/helper');
+const { serverError, errorResponse } = require('../../helpers/helper');
 
 const user = new User();
 
@@ -32,7 +32,7 @@ module.exports.create = async (req, res) => {
     }
     // Check if user email or employeeId already exists
     const existError = await userExists(['email', 'employeeId'], [data.email, data.employeeId]);
-    if (existError) return res.status(400).send(response.error(existError));
+    if (existError) return errorResponse(res, existError);
 
     // Get hashed password
     const hashed = await user.hash(data.password);
