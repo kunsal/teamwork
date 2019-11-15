@@ -1,11 +1,15 @@
 const GifModel = require('../../models/gif.model');
 const CommentModel = require('../../models/comment.model');
+const TagModel = require('../../models/tag.model');
+const GifTagModel = require('../../models/gif-tag.model');
 const response = require('../../helpers/response');
 const cloudinary = require('../../config/cloudinary-config');
 const { serverError, errorResponse } = require('../../helpers/helper');
 
 const Gif = new GifModel();
 const Comment = new CommentModel();
+const Tag = new TagModel();
+const GifTag = new GifTagModel();
 const gifNotFound = 'No GIF found';
 
 const prepareGifData = (req, image) => ({
@@ -16,8 +20,7 @@ const prepareGifData = (req, image) => ({
   originalFilename: image.original_filename,
   height: image.height,
   width: image.width,
-  createdAt: image.created_at,
-  tags: image.tags.join(),
+  createdAt: image.created_at
 });
 
 const gifExists = async (id) => {
@@ -25,6 +28,13 @@ const gifExists = async (id) => {
   if (gif.rowCount < 1) return false;
   return gif.rows[0];
 };
+
+const attachTagToGif = async(tagId, gifId) => {
+  await GifTag.create({
+    gifId: gifId,
+    tagId: tagId
+  });
+}
 
 const create = async (req, res) => {
   try {
@@ -40,6 +50,24 @@ const create = async (req, res) => {
       if (err) return errorResponse(res, 'Image could not be uploaded', 500);
       await Gif.deleteFile(path);
       const gif = await Gif.create(prepareGifData(req, image));
+      const gifId = gif.rows[0].id;
+      // Create tags if it exists
+      const tags = image.tags;
+      if (tags.length > 0 && Array.isArray(tags)) {
+        tags.map(async (t) => {
+          // Check if tag exists
+          const tag = await Tag.findBy('tag', t);
+          if (tag.rowCount > 0) {
+            // Attach tag to gif
+            await attachTagToGif(tag.rows[0].id, gifId);
+          } else {
+            // Create new tag
+            const createdTag = await Tag.create({tag: t});
+            // Attach tag to gif
+            await attachTagToGif(createdTag.rows[0].id, gifId);
+          }
+        });
+      }
       return res.status(201).send(response.success({ message: 'GIF image successfully posted', ...gif.rows[0] }));
     });
   } catch (e) {
@@ -59,6 +87,17 @@ const single = async (req, res) => {
     serverError(res, e);
   }
 };
+
+const findByTags = async (req, res) => {
+  try {
+    const { error } = Tag.validate(req.body);
+    if (error) return errorResponse(res, error.details[0].message);
+    const gifs = await Gif.findByTags(req.body.tags);
+    return res.send(response.success(gifs.rows));
+  } catch (e) {
+    serverError(res, e)
+  }
+}
 
 const deleteGif = async (req, res) => {
   try {
@@ -110,7 +149,7 @@ const flagGif = async (req, res) => {
       inappropriate: req.body.inappropriate,
     };
     const updatedGif = await Gif.update(data, gifId);
-    res.send(response.success({ message: 'Article flag updated successfully', ...updatedGif.rows[0] }));
+    res.send(response.success({ message: 'Gif flag updated successfully', ...updatedGif.rows[0] }));
   } catch (e) {
     serverError(res, e);
   }
@@ -122,4 +161,5 @@ module.exports = {
   deleteGif,
   commentOnGif,
   flagGif,
+  findByTags
 };

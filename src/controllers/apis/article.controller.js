@@ -1,18 +1,21 @@
 const ArticleModel = require('../../models/article.model');
+const TagModel = require('../../models/tag.model');
+const ArticleTagModel = require('../../models/article-tag.model');
 const CommentModel = require('../../models/comment.model');
 const response = require('../../helpers/response');
 const { serverError, errorResponse } = require('../../helpers/helper');
 
 const Article = new ArticleModel();
 const Comment = new CommentModel();
+const Tag = new TagModel();
+const ArticleTag = new ArticleTagModel();
 const articleNotFound = 'No article found';
 
 const prepareArticleData = (req) => ({
   author: req.user.userId,
   title: req.body.title,
   article: req.body.article,
-  createdAt: new Date(),
-  tags: req.body.tags,
+  createdAt: new Date()
 });
 
 const articleExists = async (id) => {
@@ -21,11 +24,35 @@ const articleExists = async (id) => {
   return article.rows[0];
 };
 
+const attachTagToArticle = async(tagId, articleId) => {
+  await ArticleTag.create({
+    articleId: articleId,
+    tagId: tagId
+  });
+}
+
 const create = async (req, res) => {
   try {
     const { error } = Article.validate(req.body);
     if (error) return errorResponse(res, error.details[0].message);
     const article = await Article.create(prepareArticleData(req));
+    const articleId = article.rows[0].id;
+    const tags = req.body.tags;
+    if (tags.length > 0 && Array.isArray(tags)) {
+      tags.map(async (t) => {
+        // Check if tag exists
+        const tag = await Tag.findBy('tag', t);
+        if (tag.rowCount > 0) {
+          // Attach tag to article
+          await attachTagToArticle(tag.rows[0].id, articleId);
+        } else {
+          // Create new tag
+          const createdTag = await Tag.create({tag: t});
+          // Attach tag to article
+          await attachTagToArticle(createdTag.rows[0].id, articleId);
+        }
+      });
+    }
     return res.status(201).send(response.success({ message: 'Article successfully posted', ...article.rows[0] }));
   } catch (e) {
     serverError(res, e);
@@ -44,6 +71,17 @@ const single = async (req, res) => {
     serverError(res, e);
   }
 };
+
+const findByTags = async (req, res) => {
+  try {
+    const { error } = Tag.validate(req.body);
+    if (error) return errorResponse(res, error.details[0].message);
+    const articles = await Article.findByTags(req.body.tags);
+    return res.send(response.success(articles.rows));
+  } catch (e) {
+    serverError(res, e)
+  }
+}
 
 const deleteArticle = async (req, res) => {
   try {
@@ -128,4 +166,5 @@ module.exports = {
   commentOnArticle,
   editArticle,
   flagArticle,
+  findByTags
 };

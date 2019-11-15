@@ -7,6 +7,16 @@ class Gif extends BaseModel{
     super('gifs');
   }
 
+  async findByTags(tags) {
+    const parameters = this.parameterize(tags);
+
+    const text = `select t.tag, a.* from gifs g
+                  inner join gifsTags at on g.id = gt.gifId
+                  inner join tags t on gt.tagId = t.id
+                  where t.tag in (${parameters});`;
+    return this.query(text, tags);
+  }
+
   async validateFile(image) {
     if (!image) return 'image is required';
     const { mimetype, path, size } = image;

@@ -2,6 +2,7 @@ const response = require('./response');
 
 exports.serverError = (res, e) => {
   res.status(500).send(response.error('Whoops! An error occurred, please try again'));
+  console.log(e.message);
   throw new Error(e);
 };
 

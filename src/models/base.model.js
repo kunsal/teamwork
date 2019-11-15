@@ -29,7 +29,7 @@ class BaseModel {
    * Create a new model record
    * @param {object} data 
    */
-  async create(data, getBack = 'id') {
+  async create(data) {
     const fields = Object.keys(data).toString();
     const values = Object.values(data);
     const parameters = this.parameterize(values);
