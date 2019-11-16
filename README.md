@@ -6,4 +6,5 @@
 # Teamwork
 Teamwork is an internal social network for employees of an organization. It allows employees to create, share and comment on articles/gifs.
 
-# 
+# Documentation
+Visit documentation [here](https://kunsal-teamwork.herokuapp.com/docs)
