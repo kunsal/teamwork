@@ -1,0 +1,487 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "Teamwork is an internal social network for employees of an organization. The goal of this application is to facilitate more interaction between colleagues and promote team bonding.",
+    "version": "1.0.0",
+    "title": "Teamwork API",
+    "termsOfService": "http://kunsal-teamwork.herokuapp.com",
+    "contact": {
+      "email": "kunsal2003@gmail.com"
+    },
+    "license": {
+      "name": "GPU"
+    }
+  },
+  "host": "kunsal-teamwork.herokuapp.com",
+  "basePath": "/api/v1",
+  "tags": [
+    {
+      "name": "teamwork",
+      "description": "An employee based social network",
+      "externalDocs": {
+        "description": "Find out more",
+        "url": "http://swagger.io"
+      }
+    },
+    {
+      "name": "signin",
+      "description": "Authenticate the API"
+    },
+    {
+      "name": "user",
+      "description": "Operations about user",
+      "externalDocs": {
+        "description": "Find out more about our store",
+        "url": "https://github.com/kunsal/teamwork"
+      }
+    }
+  ],
+  "schemes": [
+    "http",
+    "https"
+  ],
+  "paths": {
+    "/auth/signin": {
+      "post": {
+        "tags": [
+          "signin"
+        ],
+        "description": "Authenticate the API",
+        "operationId": "addPet",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "email/password",
+            "description": "User credentials to be used for authentication",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/SignIn"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "400": {
+            "description": "Invalid email/password"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/auth/create-user": {
+      "post": {
+        "tags": [
+          "create User"
+        ],
+        "description": "Create/register user in the application. This will create either an employee (admin or non admin)",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "Data",
+            "description": "User data",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateUser"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "User created successfully"
+          },
+          "400": {
+            "description": "Invalid token / Validation"
+          },
+          "401": {
+            "description": "Access denied - No authorization header passed"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/articles": {
+      "post": {
+        "tags": [
+          "create article",
+          "article"
+        ],
+        "description": "Create article",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "Data",
+            "description": "Article data",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateArticle"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Article created successfully"
+          },
+          "400": {
+            "description": "Invalid token / Validation"
+          },
+          "401": {
+            "description": "Access denied - No authorization header passed"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/articles/{articleId}": {
+      "patch": {
+        "tags": [
+          "update article",
+          "article"
+        ],
+        "description": "Create article",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "articleId",
+            "in": "path",
+            "description": "ID of article to update",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "in": "body",
+            "name": "Data",
+            "description": "Article data",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateArticle"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Article updated successfully"
+          },
+          "400": {
+            "description": "Invalid token / Validation"
+          },
+          "401": {
+            "description": "Access denied - No authorization header passed"
+          },
+          "404": {
+            "description": "Article not found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/articles/{articleId}/comment": {
+      "post": {
+        "tags": [
+          "comment",
+          "article"
+        ],
+        "description": "Add comment to article",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "articleId",
+            "in": "path",
+            "description": "ID of article to be commented on",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "in": "body",
+            "name": "Data",
+            "description": "Article data",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateComment"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Comment created successfully"
+          },
+          "400": {
+            "description": "Invalid token / Validation"
+          },
+          "401": {
+            "description": "Access denied - No authorization header passed"
+          },
+          "404": {
+            "description": "Article not found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/articles/by-tags": {
+      "post": {
+        "tags": [
+          "tag",
+          "article"
+        ],
+        "description": "Fetch articles by specific tags",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "Data",
+            "description": "Article data",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/tags"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "400": {
+            "description": "Invalid token / Validation"
+          },
+          "401": {
+            "description": "Access denied - No authorization header passed"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/gifs": {
+      "post": {
+        "tags": [
+          "gif"
+        ],
+        "description": "Upload a GIF post",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "title",
+            "in": "formData",
+            "description": "Title of the GIF post",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "file",
+            "in": "formData",
+            "description": "GIF file to upload",
+            "required": true,
+            "type": "file"
+          },
+          {
+            "name": "tags",
+            "in": "formData",
+            "description": "Comma separated string of tags",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "GIF post created successfully"
+          },
+          "400": {
+            "description": "Invalid token / Validation"
+          },
+          "401": {
+            "description": "Access denied - No authorization header passed"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "SignIn": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "example": "hello@email.com",
+          "description": "email of user"
+        },
+        "password": {
+          "type": "string",
+          "example": "password",
+          "description": "password of user"
+        }
+      }
+    },
+    "CreateUser": {
+      "type": "object",
+      "properties": {
+        "firstName": {
+          "type": "string",
+          "example": "First",
+          "description": "first name of user"
+        },
+        "lastName": {
+          "type": "string",
+          "example": "Last",
+          "description": "last name of user"
+        },
+        "email": {
+          "type": "string",
+          "example": "hello@email.com",
+          "description": "email of user"
+        },
+        "password": {
+          "type": "string",
+          "example": "password",
+          "description": "password of user"
+        },
+        "gender": {
+          "type": "string",
+          "description": "gender (male/female)",
+          "enum": [
+            "",
+            "male",
+            "female"
+          ]
+        },
+        "employeeId": {
+          "type": "string",
+          "example": "A001",
+          "description": "ID of the employee"
+        },
+        "jobRole": {
+          "type": "string",
+          "example": "Software Dev",
+          "description": "Job function/designation"
+        },
+        "department": {
+          "type": "string",
+          "example": "IT",
+          "description": "Department/Unit"
+        },
+        "address": {
+          "type": "string",
+          "example": "33 Broad street",
+          "description": "User's address"
+        },
+        "isAdmin": {
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
+    "CreateArticle": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "article": {
+          "type": "string",
+          "description": "content of article"
+        },
+        "tags": {
+          "$ref": "#/definitions/tags"
+        }
+      }
+    },
+    "CreateComment": {
+      "type": "object",
+      "properties": {
+        "comment": {
+          "type": "string"
+        }
+      }
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "description": "Array of tags (string)"
+      }
+    }
+  }
+}
