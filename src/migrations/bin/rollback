@@ -1,0 +1,10 @@
+#!/bin/bash
+chmod u+x ./src/migrations/*
+./src/migrations/create-users-table down
+./src/migrations/create-articles-table down
+./src/migrations/create-gifs-table down
+./src/migrations/create-comments-table down
+./src/migrations/create-tags-table down
+./src/migrations/create-articles-tags-table down
+./src/migrations/create-gifs-tags-table down
+

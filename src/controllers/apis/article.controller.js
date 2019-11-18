@@ -95,9 +95,11 @@ const deleteArticle = async (req, res) => {
       // Delete article comments
       await Comment.delete('postId', id);
       return res.send(response.success({ message: 'Article post successfully deleted', ...deleteArticle.rows[0] }));
+    } else {
+      return errorResponse(res, 'Forbidden', 403);
     }
-    return errorResponse(res, 'Unauthorized', 401);
   } catch (e) {
+    throw new Error(e);
     serverError(res, e);
   }
 };
