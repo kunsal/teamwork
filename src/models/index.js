@@ -3,12 +3,24 @@ const { Pool } = require('pg');
 const logger = require('../helpers/logger');
 
 const { NODE_ENV, DB_USER, DB_PASSWORD, DB_HOST, DB_PORT, DB_NAME } = process.env;
-
+//console.log(NODE_ENV);
 const isProduction = NODE_ENV === 'production';
 const connectionString = `postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}`;
+let dbConnection;
+
+switch (NODE_ENV) {
+  case 'production':
+    dbConnection = process.env.DATABASE_URL;
+    break;
+  case 'test':
+    dbConnection = process.env.TEST_DATABASE_URL;
+    break;
+  default:
+    dbConnection = connectionString;
+}
 
 const pool = new Pool({
-  connectionString: isProduction ? process.env.DATABASE_URL : connectionString,
+  connectionString: dbConnection,
   ssl: isProduction,
 });
 

@@ -1,0 +1,11 @@
+#!/bin/bash
+chmod u+x ./src/migrations/*
+node ./src/migrations/create-users-table.js up
+node ./src/migrations/create-articles-table.js up
+node ./src/migrations/create-gifs-table up
+node ./src/migrations/create-comments-table up
+node ./src/migrations/create-tags-table up
+node ./src/migrations/create-articles-tags-table up
+node ./src/migrations/create-gifs-tags-table up
+
+

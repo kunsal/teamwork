@@ -4,23 +4,6 @@ const { serverError, errorResponse } = require('../../helpers/helper');
 
 const user = new User();
 
-/**
- * Check the existence of fields
- * @param {array} fields
- * @param {array} values
- */
-const userExists = async (fields, values) => {
-  if (fields.length !== values.length) {
-    throw new Error('Fields and values must be of the same length');
-  }
-  for (let i = 0; i < fields.length; i + 1) {
-    if (await user.exists(fields[i], values[i])) {
-      return `${fields[i]} already registered`;
-    }
-  }
-  return false;
-};
-
 module.exports.create = async (req, res) => {
   try {
     const data = req.body;
@@ -30,10 +13,12 @@ module.exports.create = async (req, res) => {
       res.status(400).send(response.error(error.details[0].message));
       return;
     }
-    // Check if user email or employeeId already exists
-    const existError = await userExists(['email', 'employeeId'], [data.email, data.employeeId]);
-    if (existError) return errorResponse(res, existError);
-
+    // Check if user email is already exists
+    const emailExists = await user.exists('email', data.email);
+    if (emailExists) return errorResponse(res, 'email already registered');
+    // Check if user employeeId is already exists
+    const employeeIdExists = await user.exists('employeeId', data.employeeId);
+    if (employeeIdExists) return errorResponse(res, 'employeeId already registered');
     // Get hashed password
     const hashed = await user.hash(data.password);
     data.password = hashed;
