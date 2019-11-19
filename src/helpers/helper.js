@@ -9,3 +9,13 @@ exports.serverError = (res, e) => {
 exports.errorResponse = (res, message, code = 400) => {
   res.status(code).send(response.error(message));
 };
+
+module.exports.renameKeys = (data, obj) => {
+  for (let i = 0; i < data.length; i++) {
+    let key = Object.keys(data[i])[0];
+    let value = Object.values(data[i])[0]
+    obj[key] = obj[value];
+    delete obj[value];
+  }
+  return obj;
+}

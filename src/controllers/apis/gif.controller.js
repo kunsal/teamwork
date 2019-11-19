@@ -4,7 +4,7 @@ const TagModel = require('../../models/tag.model');
 const GifTagModel = require('../../models/gif-tag.model');
 const response = require('../../helpers/response');
 const cloudinary = require('../../config/cloudinary-config');
-const { serverError, errorResponse } = require('../../helpers/helper');
+const { serverError, errorResponse, renameKeys } = require('../../helpers/helper');
 
 const Gif = new GifModel();
 const Comment = new CommentModel();
@@ -36,6 +36,20 @@ const attachTagToGif = async(tagId, gifId) => {
   });
 }
 
+const gifReturnData = [
+  { gifId: 'id' },
+  { gifTitle: 'title' },
+  { authorId: 'author' },
+  { createdOn: 'createdat' },
+  { imageUrl: 'imageurl' },
+];
+
+const commentReturnData = [
+  { gifId: 'id' },
+  { createdOn: 'createdat' },
+  { authorId: 'commenter' },
+];
+
 const create = async (req, res) => {
   try {
     const { file } = req;
@@ -50,7 +64,8 @@ const create = async (req, res) => {
       if (err) return errorResponse(res, 'Image could not be uploaded', 500);
       await Gif.deleteFile(path);
       const gif = await Gif.create(prepareGifData(req, image));
-      const gifId = gif.rows[0].id;
+      const gifData = gif.rows[0];
+      const gifId = gifData.id;
       // Create tags if it exists
       const tags = image.tags;
       if (tags.length > 0 && Array.isArray(tags)) {
@@ -68,7 +83,8 @@ const create = async (req, res) => {
           }
         });
       }
-      return res.status(201).send(response.success({ message: 'GIF image successfully posted', ...gif.rows[0] }));
+      renameKeys(gifReturnData, gifData);
+      return res.status(201).send(response.success({ message: 'GIF image successfully posted', ...gifData }));
     });
   } catch (e) {
     serverError(res, e);
@@ -82,7 +98,9 @@ const single = async (req, res) => {
     if (!gif) return errorResponse(res, gifNotFound, 404);
     // Get comments
     const comments = await Comment.findByType('postId', gifId, 'gif');
-    return res.send(response.success({ ...gif, comments: comments.rows }));
+    const commentsData = comments.rows;
+    renameKeys(gifReturnData, gif);
+    return res.send(response.success({ ...gif, comments: commentsData }));
   } catch (e) {
     serverError(res, e);
   }
@@ -106,17 +124,25 @@ const deleteGif = async (req, res) => {
     if (!gif) return errorResponse(res, gifNotFound, 404);
     // Only Original Poster or admin can delete this gif
     if (req.user.userId === gif.author) {
-      const deletedGif = await Gif.delete('id', req.params.id);
-      if (deletedGif.rowCount < 1) return errorResponse(res, 'Gif could not be deleted');
-      // Delete gif comments
-      await Comment.delete('postId', id);
-      return res.send(response.success({ message: 'GIF post successfully deleted', ...deletedGif.rows[0] }));
+      performDelete(id, res);
+    }else if (req.user.isAdmin && gif.inappropriate){
+      performDelete(id, res);
+    } else {
+      return errorResponse(res, 'Forbidden', 403);
     }
-    return errorResponse(res, 'Unauthorized', 401);
   } catch (e) {
     serverError(res, e);
   }
 };
+
+const performDelete = async (id, res) => {
+  const deletedGif = await Gif.delete('id', id);
+  if (deletedGif.rowCount < 1) return errorResponse(res, 'Gif could not be deleted');
+  // Delete gif comments
+  await Comment.delete('postId', id);
+  renameKeys(gifReturnData, deletedGif.rows[0]);
+  return res.send(response.success({ message: 'GIF post successfully deleted', ...deletedGif.rows[0] }));
+}
 
 const commentOnGif = async (req, res) => {
   try {
@@ -132,6 +158,7 @@ const commentOnGif = async (req, res) => {
       postId: gifId,
     };
     const commented = await Comment.create(data);
+    renameKeys(commentReturnData, commented.rows[0]);
     return res.send(response.success({ message: 'Comment successfully created', ...commented.rows[0] }));
   } catch (e) {
     serverError(res, e);
@@ -149,6 +176,7 @@ const flagGif = async (req, res) => {
       inappropriate: req.body.inappropriate,
     };
     const updatedGif = await Gif.update(data, gifId);
+    renameKeys(gifReturnData, updatedGif.rows[0]);
     res.send(response.success({ message: 'Gif flag updated successfully', ...updatedGif.rows[0] }));
   } catch (e) {
     serverError(res, e);

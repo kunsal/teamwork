@@ -1,6 +1,6 @@
 const response = require('../../helpers/response');
 const User = require('../../models/user.model');
-const { serverError, errorResponse } = require('../../helpers/helper');
+const { serverError, errorResponse, renameKeys } = require('../../helpers/helper');
 
 const user = new User();
 
@@ -27,6 +27,15 @@ module.exports.create = async (req, res) => {
     // Prepare users jwt token
     if (newUser.rowCount === 1) {
       const userData = newUser.rows[0];
+      renameKeys([
+        {userId: 'id'},
+        {firstName: 'firstname'},
+        {lastName: 'lastname'},
+        {jobRole: 'jobrole'},
+        {employeeId: 'employeeid'},
+        {isAdmin: 'isadmin'},
+      ], userData);
+      userData.token = user.generateAuthToken(userData);
       delete userData.password;
       res.status(201).send(response.success(userData));
     }
