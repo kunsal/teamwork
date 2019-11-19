@@ -3,7 +3,6 @@ const { Pool } = require('pg');
 const logger = require('../helpers/logger');
 
 const { NODE_ENV, DB_USER, DB_PASSWORD, DB_HOST, DB_PORT, DB_NAME } = process.env;
-//console.log(NODE_ENV);
 const isProduction = NODE_ENV === 'production';
 const connectionString = `postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}`;
 let dbConnection;

@@ -3,7 +3,7 @@ const TagModel = require('../../models/tag.model');
 const ArticleTagModel = require('../../models/article-tag.model');
 const CommentModel = require('../../models/comment.model');
 const response = require('../../helpers/response');
-const { serverError, errorResponse } = require('../../helpers/helper');
+const { serverError, errorResponse, renameKeys } = require('../../helpers/helper');
 
 const Article = new ArticleModel();
 const Comment = new CommentModel();
@@ -31,6 +31,13 @@ const attachTagToArticle = async(tagId, articleId) => {
   });
 }
 
+const articleReturnData = [
+  { articleId: 'id' },
+  { articleTitle: 'title' },
+  { authorId: 'author' },
+  { createdOn: 'createdat' }
+];
+
 const create = async (req, res) => {
   try {
     const { error } = Article.validate(req.body);
@@ -53,6 +60,7 @@ const create = async (req, res) => {
         }
       });
     }
+    renameKeys(articleReturnData, article.rows[0]);
     return res.status(201).send(response.success({ message: 'Article successfully posted', ...article.rows[0] }));
   } catch (e) {
     serverError(res, e);
@@ -66,6 +74,7 @@ const single = async (req, res) => {
     if (!article) return errorResponse(res, articleNotFound, 404);
     // Get comments
     const comments = await Comment.findByType('postId', articleId, 'article');
+    renameKeys(articleReturnData, article);
     return res.send(response.success({ ...article, comments: comments.rows }));
   } catch (e) {
     serverError(res, e);
@@ -90,19 +99,27 @@ const deleteArticle = async (req, res) => {
     if (!article) return errorResponse(res, articleNotFound, 404);
     // Only Original Poster or admin can delete this article
     if (req.user.userId === article.author) {
-      const deletedArticle = await Article.delete('id', req.params.id);
-      if (deletedArticle.rowCount < 1) return errorResponse(res, 'Article could not be deleted');
-      // Delete article comments
-      await Comment.delete('postId', id);
-      return res.send(response.success({ message: 'Article post successfully deleted', ...deleteArticle.rows[0] }));
+      performDelete(id, res);
+    } else if (req.user.isAdmin && article.inappropriate){
+      performDelete(id, res);
     } else {
       return errorResponse(res, 'Forbidden', 403);
     }
   } catch (e) {
-    throw new Error(e);
+   // throw new Error(e);
     serverError(res, e);
   }
 };
+
+const performDelete = async (id, res) => {
+  const deletedArticle = await Article.delete('id', id);
+  const articleData = deletedArticle.rows[0];
+    if (deletedArticle.rowCount < 1) return errorResponse(res, 'Article could not be deleted');
+    // Delete article comments
+    await Comment.delete('postId', id)
+    renameKeys(articleReturnData, articleData);
+    return res.send(response.success({ message: 'Article post successfully deleted', ...articleData }));
+}
 
 const commentOnArticle = async (req, res) => {
   try {
@@ -138,6 +155,7 @@ const editArticle = async (req, res) => {
       tags: req.body.tags,
     };
     const updatedArticle = await Article.update(data, articleId);
+    renameKeys(articleReturnData, updatedArticle.rows[0]);
     res.send(response.success({ message: 'Article updated successfully', ...updatedArticle.rows[0] }));
   } catch (e) {
     serverError(res, e);
@@ -155,6 +173,7 @@ const flagArticle = async (req, res) => {
       inappropriate: req.body.inappropriate,
     };
     const updatedArticle = await Article.update(data, articleId);
+    renameKeys(articleReturnData, updatedArticle.rows[0]);
     res.send(response.success({ message: 'Article flag updated successfully', ...updatedArticle.rows[0] }));
   } catch (e) {
     serverError(res, e);
