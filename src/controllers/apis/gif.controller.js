@@ -87,6 +87,7 @@ const create = async (req, res) => {
       return res.status(201).send(response.success({ message: 'GIF image successfully posted', ...gifData }));
     });
   } catch (e) {
+    console.log(e);
     serverError(res, e);
   }
 };
@@ -111,8 +112,10 @@ const findByTags = async (req, res) => {
     const { error } = Tag.validate(req.body);
     if (error) return errorResponse(res, error.details[0].message);
     const gifs = await Gif.findByTags(req.body.tags);
+    renameKeys(gifReturnData, gifs.rows[0]);
     return res.send(response.success(gifs.rows));
   } catch (e) {
+    console.log(e);
     serverError(res, e)
   }
 }
@@ -159,7 +162,7 @@ const commentOnGif = async (req, res) => {
     };
     const commented = await Comment.create(data);
     renameKeys(commentReturnData, commented.rows[0]);
-    return res.send(response.success({ message: 'Comment successfully created', ...commented.rows[0] }));
+    return res.send(response.success({ message: 'Comment added successfully', ...commented.rows[0] }));
   } catch (e) {
     serverError(res, e);
   }

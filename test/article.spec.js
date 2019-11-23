@@ -207,7 +207,7 @@ describe('article', () => {
         });
       });
 
-      it('should delete article is inappropriate and user is admin', (done) => {
+      it('should delete article if inappropriate and user is admin', (done) => {
         findByStub.resolves({rowCount: 1, rows: [{id: 1, author: 2, inappropriate: true, ...articleData}]});
         sinon.stub(Article.prototype, 'delete').callsFake((field, value) => {
           return Promise.resolve({rowCount: 1, rows: [
@@ -273,7 +273,6 @@ describe('article', () => {
     });
 
     it('should return 404 if article is not found', (done) => {
-      findByStub.restore();
       findByStub.resolves({rowCount: 0});
       chai.request(app)
         .post(`${url}/articles/1/comment`)
@@ -328,7 +327,6 @@ describe('article', () => {
     });
 
     it('should return 404 if article is not found', (done) => {
-      findByStub.restore();
       findByStub.resolves({rowCount: 0});
       chai.request(app)
         .patch(`${url}/articles/1`)
@@ -386,7 +384,6 @@ describe('article', () => {
     });
 
     it('should return 404 if article is not found', (done) => {
-      findByStub.restore();
       findByStub.resolves({rowCount: 0});
       chai.request(app)
         .patch(`${url}/articles/1/flag`)
@@ -405,7 +402,6 @@ describe('article', () => {
         .set('Authorization', `Bearer ${jwtToken}`)
         .send({})
         .end((err, res) => {
-          console.log(res.body)
           expect(res.status).to.equal(400);
           expect(res.body).to.have.property('status', 'error');
           expect(res.body).to.have.property('error', '"inappropriate" is required');
@@ -431,7 +427,6 @@ describe('article', () => {
         .set('Authorization', `Bearer ${jwtToken}`)
         .send({inappropriate: true})
         .end((err, res) => {
-          console.log(res.body);
           expect(res.status).to.equal(200);
           expect(res.body).to.have.property('status', 'success');
           expect(res.body).to.have.property('data');

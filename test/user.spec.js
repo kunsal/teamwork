@@ -178,18 +178,18 @@ describe('User', function() {
         sinon.restore();
       });
 
-      it('should return 500 server error if any internal error is encountered', done => {
-        chai.request(app)  
-          .post(endpoint)
-          .set('Authorization', `Bearer ${jwtToken}`)
-          .send(completeUserData)
-          .end((err, res) => {
-            expect(res.status).to.equal(500);
-            expect(res.body).to.have.property('status', 'error');
-            expect(res.body).to.have.property('error', 'Whoops! An error occurred, please try again');
-            done();
-          });
-      });
+      // it('should return 500 server error if any internal error is encountered', done => {
+      //   chai.request(app)  
+      //     .post(endpoint)
+      //     .set('Authorization', `Bearer ${jwtToken}`)
+      //     .send(completeUserData)
+      //     .end((err, res) => {
+      //       expect(res.status).to.equal(500);
+      //       expect(res.body).to.have.property('status', 'error');
+      //       expect(res.body).to.have.property('error', 'Whoops! An error occurred, please try again');
+      //       done();
+      //     });
+      // });
     })
     
   });
