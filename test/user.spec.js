@@ -184,7 +184,6 @@ describe('User', function() {
           .set('Authorization', `Bearer ${jwtToken}`)
           .send(completeUserData)
           .end((err, res) => {
-            console.log(res.status,res.body);
             expect(res.status).to.equal(500);
             expect(res.body).to.have.property('status', 'error');
             expect(res.body).to.have.property('error', 'Whoops! An error occurred, please try again');

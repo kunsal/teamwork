@@ -44,6 +44,7 @@ const create = async (req, res) => {
     if (error) return errorResponse(res, error.details[0].message);
     const article = await Article.create(prepareArticleData(req));
     const articleId = article.rows[0].id;
+    console.log(articleId)
     const tags = req.body.tags;
     if (tags.length > 0 && Array.isArray(tags)) {
       tags.map(async (t) => {
@@ -77,6 +78,7 @@ const single = async (req, res) => {
     renameKeys(articleReturnData, article);
     return res.send(response.success({ ...article, comments: comments.rows }));
   } catch (e) {
+    console.log(e);
     serverError(res, e);
   }
 };
@@ -106,7 +108,6 @@ const deleteArticle = async (req, res) => {
       return errorResponse(res, 'Forbidden', 403);
     }
   } catch (e) {
-   // throw new Error(e);
     serverError(res, e);
   }
 };
