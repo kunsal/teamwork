@@ -73,9 +73,9 @@ class BaseModel {
    * @returns {boolean}
    */
   async exists(field, value) {
-    const gif = await this.findBy(field, value, true);
+    const param = await this.findBy(field, value, true);
     // Check if user returns count
-    if (gif.rowCount > 0) {
+    if (param.rowCount > 0) {
       return true;
     }
     return false;
