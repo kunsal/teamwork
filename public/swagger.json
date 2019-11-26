@@ -348,7 +348,7 @@
             "type": "string"
           },
           {
-            "name": "file",
+            "name": "image",
             "in": "formData",
             "description": "GIF file to upload",
             "required": true,
@@ -371,6 +371,25 @@
           },
           "401": {
             "description": "Access denied - No authorization header passed"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/feed": {
+      "get": {
+        "tags": [
+          "feed", "article", "gif"
+        ],
+        "description": "Get a list of articles and gifs in reversed chronological order",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "GIF post created successfully"
           },
           "500": {
             "description": "Server error"
