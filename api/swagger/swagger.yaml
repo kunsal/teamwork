@@ -235,9 +235,9 @@ paths:
         description: "Title of the GIF post"
         required: true
         type: "string"
-      - name: "file"
+      - name: "image"
         in: "formData"
-        description: "GIF file to upload"
+        description: "GIF image to upload"
         required: true
         type: "file"
       - name: "tags"
@@ -254,6 +254,21 @@ paths:
           description: "Access denied - No authorization header passed"
         500:
           description: "Server error"
+          
+          
+  /feed:
+    get:
+      tags: 
+      - "feed"
+      description: "Get all feed (articles and gifs in reverse chronological order)"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "Success"
+        500:
+          description: "Server error"
+          
           
 definitions:
   SignIn:
