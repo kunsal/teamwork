@@ -13,13 +13,13 @@ module.exports.login = async (req, res) => {
     if (user.rowCount < 1) return errorResponse(res, loginError);
     const currentUser = user.rows[0];
     const {
-      id, password, isAdmin, firstName, lastName,
+      id, password, isadmin, firstname, lastname,
     } = currentUser;
     const validPassword = await userModel.verify(req.body.password, password);
     if (!validPassword) return errorResponse(res, loginError);
     const token = userModel.generateAuthToken(currentUser);
     const data = {
-      token, isAdmin, firstName, lastName, userId: id,
+      token, isAdmin: isadmin, firstName: firstname , lastName: lastname, userId: id,
     };
     res.send(response.success(data));
   } catch (e) {
