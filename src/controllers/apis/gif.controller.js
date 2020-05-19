@@ -87,7 +87,6 @@ const create = async (req, res) => {
       return res.status(201).send(response.success({ message: 'GIF image successfully posted', ...gifData }));
     });
   } catch (e) {
-    console.log(e);
     serverError(res, e);
   }
 };
@@ -115,7 +114,6 @@ const findByTags = async (req, res) => {
     renameKeys(gifReturnData, gifs.rows[0]);
     return res.send(response.success(gifs.rows));
   } catch (e) {
-    console.log(e);
     serverError(res, e)
   }
 }

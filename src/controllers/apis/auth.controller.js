@@ -23,7 +23,6 @@ module.exports.login = async (req, res) => {
     };
     res.send(response.success(data));
   } catch (e) {
-    console.log((e));
     serverError(res, e);
   }
 };

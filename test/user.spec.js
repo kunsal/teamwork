@@ -3,6 +3,8 @@ const sinon = require('sinon');
 const User = require('../src/models/user.model');
 const jwt = require('jsonwebtoken');
 
+
+
 const adminData = {
   email: 'admin@kaytivity.com',
   id: 1,
@@ -169,28 +171,6 @@ describe('User', function() {
         });
       });
     });
-    describe('Internal server', () => {
-      beforeEach(() => {
-        sinon.stub(User.prototype, 'validate').returns({error: {details:{}}});
-      });
-
-      afterEach(() => {
-        sinon.restore();
-      });
-
-      // it('should return 500 server error if any internal error is encountered', done => {
-      //   chai.request(app)  
-      //     .post(endpoint)
-      //     .set('Authorization', `Bearer ${jwtToken}`)
-      //     .send(completeUserData)
-      //     .end((err, res) => {
-      //       expect(res.status).to.equal(500);
-      //       expect(res.body).to.have.property('status', 'error');
-      //       expect(res.body).to.have.property('error', 'Whoops! An error occurred, please try again');
-      //       done();
-      //     });
-      // });
-    })
     
   });
 });

@@ -77,7 +77,6 @@ const single = async (req, res) => {
     renameKeys(articleReturnData, article);
     return res.send(response.success({ ...article, comments: comments.rows }));
   } catch (e) {
-    console.log(e);
     serverError(res, e);
   }
 };

@@ -1,4 +1,5 @@
 const { chai, expect, app } = require('./base.spec');
+const homePage = require('../src/controllers/home-page');
 
 describe('Home page', () => {
   it('should return with status 200', (done) => {
@@ -10,4 +11,8 @@ describe('Home page', () => {
         done();
       });
   });
+
+  it('should return with welcome text', () => {
+    expect(homePage.toString()).to.contain('Welcome to Teamwork');
+  })
 });
