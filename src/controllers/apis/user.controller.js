@@ -36,7 +36,7 @@ module.exports.create = async (req, res) => {
     ], userData);
     userData.token = user.generateAuthToken(userData);
     delete userData.password;
-    res.status(201).send(response.success(userData));
+    res.status(201).send(response.success({message: 'User added successfully', ...userData}));
     
     // const token = user.generateAuthToken(newUser)
   } catch (e) {

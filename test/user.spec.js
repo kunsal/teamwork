@@ -167,10 +167,20 @@ describe('User', function() {
           expect(res.body.status).to.equal('success');
           expect(res.body).to.have.property('data');
           expect(res.body.data).to.not.be.a('string');
+          expect(res.body.data).to.have.property('message', 'User added successfully');
           done();
         });
       });
     });
-    
+
+    describe('Internal server', () => {
+      beforeEach(() => {
+        sinon.stub(User.prototype, 'validate').returns({error: {details:{}}});
+      });
+
+      afterEach(() => {
+        sinon.restore();
+      });
+    })
   });
 });
